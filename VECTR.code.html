@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VECTR // PDEU — Lock Your CGPA. Decode Your Endsem.</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            border-radius: 999px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.45);
+            transition: transform 0.12s ease;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+        /* Hide number input arrows for cleaner UI */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-20">
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 hidden bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-2xl text-xs sm:text-sm font-bold flex items-center gap-2 border border-emerald-400/40">
+        <span id="toastText">Saved successfully!</span>
+    </div>
+
+    <!-- Top Sticky Header -->
+    <header class="sticky top-0 z-30 backdrop-blur-md bg-slate-900/95 border-b border-slate-800 shadow-lg">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center font-black text-white text-xl shadow-lg shadow-blue-500/25 border border-cyan-300/30 relative overflow-hidden">
+                    <span class="tracking-tighter font-mono">V</span>
+                    <div class="absolute bottom-0 inset-x-0 h-1 bg-cyan-300"></div>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <h1 class="font-black text-base sm:text-xl text-white tracking-wider font-mono flex items-center gap-1.5">
+                            <span>VECTR</span>
+                            <span class="text-cyan-400 font-normal">//</span>
+                            <span class="text-blue-400">PDEU</span>
+                        </h1>
+                        <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 font-mono">
+                            Lock Your CGPA. Decode Your Endsem.
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-0.5">
+                        25·25·50 Grade Intelligence Engine • Midsem (25) + IA (25) + Endsem (100 ÷ 2 = 50)
+                    </p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-2 flex-wrap">
+                <button onclick="copySummaryToClipboard()" class="text-xs font-semibold px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 transition flex items-center gap-1.5">
+                    <span>📋 Export VECTR Plan</span>
+                </button>
+                <button onclick="toggleGradingModal()" class="text-xs font-semibold px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+                    ⚙️ Grade Cutoffs
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 pt-5 space-y-6">
+
+        <!-- =============================================================== -->
+        <!-- BAR 1: SEMESTER PRESET & STUDENT MODE SELECTOR (FOR EVERYONE)   -->
+        <!-- =============================================================== -->
+        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-md">
+            <div class="space-y-1">
+                <div class="text-xs font-bold uppercase tracking-wider text-blue-400">Step 1: Choose Semester Syllabus or Student Mode</div>
+                <p class="text-xs text-slate-400">Pre-loaded with official PDEU Course Outline subjects & credits, or add/edit any subject below.</p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+                <!-- Semester Buttons -->
+                <div class="inline-flex rounded-xl bg-slate-950 p-1 border border-slate-800 text-xs flex-wrap">
+                    <button id="semBtn-sem1_my" onclick="loadPreset('sem1_my')" class="px-3 py-1.5 rounded-lg font-bold bg-blue-600 text-white transition">
+                        Sem I (My Notebook Marks)
+                    </button>
+                    <button id="semBtn-sem1_blank" onclick="loadPreset('sem1_blank')" class="px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition">
+                        Sem I (New Student)
+                    </button>
+                    <button id="semBtn-sem2" onclick="loadPreset('sem2')" class="px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition">
+                        Sem II (20 Cr)
+                    </button>
+                    <button id="semBtn-sem3" onclick="loadPreset('sem3')" class="px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition">
+                        Sem III (21 Cr)
+                    </button>
+                    <button id="semBtn-sem4" onclick="loadPreset('sem4')" class="px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition">
+                        Sem IV (22 Cr)
+                    </button>
+                </div>
+
+                <!-- Labs Toggle -->
+                <label class="inline-flex items-center gap-2 text-xs font-semibold bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl cursor-pointer select-none text-slate-300 hover:border-slate-700">
+                    <input type="checkbox" id="includeLabsToggle" checked onchange="toggleLabsFilter(this.checked)" class="w-4 h-4 accent-blue-500 rounded">
+                    <span>Include Labs/Practicals</span>
+                </label>
+            </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- BAR 2: TARGET GPA PLANNER & LIVE SGPA DASHBOARD                 -->
+        <!-- =============================================================== -->
+        <section class="bg-gradient-to-b from-slate-900 to-slate-900/95 border-2 border-cyan-500/40 rounded-2xl p-5 sm:p-6 shadow-2xl space-y-5 relative overflow-hidden">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+                
+                <!-- Left 7 Cols: Target GPA Input & Quick Buttons -->
+                <div class="lg:col-span-7 space-y-3">
+                    <div class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-cyan-400 font-mono">
+                        <span>🎯 VECTR TARGET ENGINE // LOCK YOUR CGPA. DECODE YOUR ENDSEM.</span>
+                    </div>
+                    <h2 class="text-lg sm:text-2xl font-extrabold text-white leading-snug">
+                        Target GPA: <span id="heroTargetText" class="text-cyan-400 underline decoration-cyan-500/50 font-mono">8.50</span>
+                        <span class="text-xs sm:text-sm font-normal text-slate-400 block sm:inline sm:ml-2">
+                            (Enter your Midsem & IA below — VECTR decodes the exact Endsem marks needed!)
+                        </span>
+                    </h2>
+
+                    <!-- Target Slider + Quick Pills -->
+                    <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-4 space-y-3">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <span class="text-xs font-bold text-slate-300">Choose Target SGPA / CGPA:</span>
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <button onclick="setTargetGpa(7.0)" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition">7.0</button>
+                                <button onclick="setTargetGpa(7.5)" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition">7.5</button>
+                                <button onclick="setTargetGpa(8.0)" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition">8.0</button>
+                                <button onclick="setTargetGpa(8.5)" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-600/30 border border-blue-500/40 text-blue-300 transition">8.5</button>
+                                <button onclick="setTargetGpa(9.0)" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition">9.0</button>
+                                <button onclick="setTargetGpa(9.5)" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition">9.5</button>
+                                <input type="number" id="targetGpaInput" min="4.0" max="10.0" step="0.05" value="8.50"
+                                    oninput="setTargetGpa(this.value)"
+                                    class="w-16 bg-slate-900 border border-blue-500 rounded-lg px-2 py-1 text-center font-extrabold text-white text-sm">
+                            </div>
+                        </div>
+
+                        <input type="range" id="targetGpaSlider" min="4.5" max="10.0" step="0.05" value="8.50"
+                            oninput="setTargetGpa(this.value)" class="w-full bg-slate-800">
+
+                        <div class="flex justify-between text-[11px] text-slate-500 font-medium">
+                            <span>5.0 (Pass)</span>
+                            <span>7.0 (First Class)</span>
+                            <span>8.0 (Distinction)</span>
+                            <span>9.0+ (Dean's List)</span>
+                            <span>10.0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right 5 Cols: Live Scorecards (Current SGPA vs Target Plan SGPA vs Max Possible) -->
+                <div class="lg:col-span-5 grid grid-cols-3 gap-2.5">
+                    <div class="bg-slate-950 border border-blue-500/40 rounded-2xl p-3.5 text-center flex flex-col justify-between">
+                        <span class="text-[10px] sm:text-[11px] uppercase tracking-wider font-bold text-blue-300">Live SGPA</span>
+                        <div id="liveSgpaScore" class="text-2xl sm:text-3xl font-extrabold text-white my-1">8.55</div>
+                        <span id="liveCreditsLabel" class="text-[11px] text-slate-400">20 Credits</span>
+                    </div>
+
+                    <div class="bg-slate-950 border border-emerald-500/40 rounded-2xl p-3.5 text-center flex flex-col justify-between">
+                        <span class="text-[10px] sm:text-[11px] uppercase tracking-wider font-bold text-emerald-300">Target Plan</span>
+                        <div id="plannedSgpaScore" class="text-2xl sm:text-3xl font-extrabold text-emerald-400 my-1">8.55</div>
+                        <span class="text-[11px] text-slate-400">Recommended</span>
+                    </div>
+
+                    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-3.5 text-center flex flex-col justify-between">
+                        <span class="text-[10px] sm:text-[11px] uppercase tracking-wider font-bold text-amber-300">Max Possible</span>
+                        <div id="maxPossibleSgpaScore" class="text-2xl sm:text-3xl font-extrabold text-amber-400 my-1">9.80</div>
+                        <span class="text-[11px] text-slate-400">If 100/100 End</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Smart Status & 1-Click Auto-Fill Endsem Bar -->
+            <div id="targetStatusBanner" class="rounded-xl px-4 py-3 border flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-emerald-950/40 border-emerald-500/30 text-emerald-200 text-xs sm:text-sm">
+                <div id="targetStatusMessage" class="leading-relaxed">
+                    Decoding your personalized Endsem marks plan...
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <button onclick="applyRecommendedEndsemToAll()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-xs shadow-lg transition whitespace-nowrap">
+                        ⚡ Lock Target & Auto-Decode Endsem Marks
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- STEP 3: INDIVIDUAL SUBJECT MARKS & TARGET CALCULATOR            -->
+        <!-- =============================================================== -->
+        <section class="space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <h2 class="text-base sm:text-lg font-extrabold text-white">
+                        Step 3: Enter Each Subject's Midsem (25), IA (25) & Endsem (100) Marks
+                    </h2>
+                    <p class="text-xs text-slate-400">
+                        Each card shows your live total out of 100 AND the <strong>exact Endsem score (out of 100)</strong> you need in that subject based on your Midsem + IA!
+                    </p>
+                </div>
+
+                <!-- Bulk IA Helper + Add Subject -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs">
+                        <span class="text-slate-400 font-medium">Set All IA (/25):</span>
+                        <input type="number" id="bulkIaInput" min="0" max="25" step="0.5" value="21"
+                            class="w-12 bg-slate-950 border border-slate-700 rounded px-1.5 py-0.5 text-center font-bold text-white"
+                            oninput="setAllIaMarks(this.value)">
+                    </div>
+
+                    <button onclick="addNewSubject()" class="text-xs font-bold px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white transition shadow">
+                        + Add Subject
+                    </button>
+                </div>
+            </div>
+
+            <!-- Subject Cards Container -->
+            <div id="subjectsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Populated dynamically -->
+            </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- STEP 4: OVERALL MULTI-SEMESTER CGPA COMBINER (FOR SEM 2/3/4+)   -->
+        <!-- =============================================================== -->
+        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                <div>
+                    <h3 class="text-sm sm:text-base font-extrabold text-white">📈 Overall Multi-Semester CGPA Calculator (Optional)</h3>
+                    <p class="text-xs text-slate-400">In Sem 2, 3, or 4? Enter your previous CGPA & completed credits to see your new combined CGPA.</p>
+                </div>
+                <div class="flex items-center gap-2 bg-slate-950 border border-slate-800 px-3.5 py-2 rounded-xl">
+                    <span class="text-xs text-slate-400 font-semibold">Combined CGPA:</span>
+                    <span id="combinedCgpaDisplay" class="text-xl font-extrabold text-blue-400">8.55</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 space-y-1">
+                    <label class="text-slate-400 font-semibold block">Previous CGPA (Before This Sem)</label>
+                    <input type="number" id="prevCgpaInput" min="0" max="10" step="0.01" placeholder="e.g. 8.40" value="0"
+                        oninput="calculateOverallCgpa()"
+                        class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-bold text-sm">
+                </div>
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 space-y-1">
+                    <label class="text-slate-400 font-semibold block">Previous Total Credits Completed</label>
+                    <input type="number" id="prevCreditsInput" min="0" max="200" step="1" placeholder="e.g. 20" value="0"
+                        oninput="calculateOverallCgpa()"
+                        class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-bold text-sm">
+                </div>
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 flex flex-col justify-center">
+                    <div class="text-slate-400">Current Sem SGPA × Credits:</div>
+                    <div id="currentSemSummaryText" class="text-sm font-bold text-white mt-1">8.55 SGPA × 20 Credits</div>
+                    <div class="text-[11px] text-slate-500 mt-0.5">Leave Previous Credits as 0 if you are in Sem 1.</div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Grade Cutoff Modal -->
+    <div id="gradingModal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div>
+                    <h3 class="font-bold text-white text-base">PDEU 10-Point Grade Cutoffs</h3>
+                    <p class="text-xs text-slate-400">Minimum total marks (out of 100) for each grade point</p>
+                </div>
+                <button onclick="toggleGradingModal()" class="text-slate-400 hover:text-white p-1">✕</button>
+            </div>
+
+            <div id="cutoffInputsList" class="space-y-2 text-xs"></div>
+
+            <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+                <button onclick="resetDefaultCutoffs()" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs">Reset Defaults</button>
+                <button onclick="toggleGradingModal()" class="px-4 py-1.5 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-500 text-xs">Save & Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================================
+        // 1. PDEU GRADE CUTOFF TABLE (100% Verified 10-Point Scale)
+        // ============================================================================
+        const defaultCutoffs = [
+            { grade: 'O',  points: 10, min: 80 },
+            { grade: 'A+', points: 9,  min: 70 },
+            { grade: 'A',  points: 8,  min: 60 },
+            { grade: 'B+', points: 7,  min: 55 },
+            { grade: 'B',  points: 6,  min: 50 },
+            { grade: 'C',  points: 5,  min: 45 },
+            { grade: 'P',  points: 4,  min: 40 },
+            { grade: 'F',  points: 0,  min: 0  }
+        ];
+
+        let gradeCutoffs = JSON.parse(JSON.stringify(defaultCutoffs));
+        let targetGpa = 8.50;
+        let currentPresetKey = 'sem1_my';
+        let includeLabs = true;
+        let recommendedGradesMap = {}; // course.id -> { targetPoints, targetGrade, neededEndsem100, reachable }
+
+        // ============================================================================
+        // 2. OFFICIAL PDEU COURSE OUTLINE PRESETS (SEM I, II, III, IV)
+        // ============================================================================
+        const presets = {
+            // Sem 1 with User's Handwritten Notebook Midsem Marks
+            sem1_my: [
+                { id: 's1_math', name: 'Mathematics – I',               credits: 4, isLab: false, active: true, midsem: 23, ia: 21, endsem: 72, tag: 'Notebook: 23/25' },
+                { id: 's1_phys', name: 'Applied Physics',               credits: 3, isLab: false, active: true, midsem: 19, ia: 21, endsem: 64, tag: 'Notebook: 19/25' },
+                { id: 's1_eng',  name: 'English Communication',         credits: 2, isLab: false, active: true, midsem: 20, ia: 21, endsem: 62, tag: 'Notebook: 20/25' },
+                { id: 's1_evs',  name: 'Environment Science (EVS)',     credits: 2, isLab: false, active: true, midsem: 19, ia: 21, endsem: 64, tag: 'Notebook: 19/25' },
+                { id: 's1_iks',  name: 'Indian Knowledge System (IKS)', credits: 2, isLab: false, active: true, midsem: 17, ia: 21, endsem: 66, tag: 'Notebook: 17/25' },
+                { id: 's1_cp',   name: 'Computer Programming – I (CP)', credits: 1, isLab: false, active: true, midsem: 23, ia: 21, endsem: 72, tag: 'Notebook: 23/25' },
+                { id: 's1_uhv',  name: 'Universal Human Values (UHV)',  credits: 1, isLab: false, active: true, midsem: 23, ia: 21, endsem: 72, tag: 'Notebook: 23/25' },
+                { id: 's1_ob',   name: 'Organizational Behavior (OB)',  credits: 1, isLab: false, active: true, midsem: 18, ia: 21, endsem: 64, tag: 'Notebook: 18/25' },
+                { id: 's1_eg',   name: 'Engineering Graphics',          credits: 2, isLab: true,  active: true, midsem: 21, ia: 21, endsem: 76, tag: 'Sem-I Practical' },
+                { id: 's1_plab', name: 'Applied Physics Laboratory',    credits: 1, isLab: true,  active: true, midsem: 21, ia: 22, endsem: 76, tag: 'Sem-I Lab' },
+                { id: 's1_work', name: 'Workshop Practices',            credits: 1, isLab: true,  active: true, midsem: 21, ia: 22, endsem: 76, tag: 'Sem-I Lab' },
+                { id: 's1_cplb', name: 'Computer Programming – I Lab',  credits: 1, isLab: true,  active: true, midsem: 22, ia: 22, endsem: 78, tag: 'Sem-I Lab' }
+            ],
+            // Sem 1 Blank/Default for any PDEU First-Year Student (Exact 20 Cr from Outline)
+            sem1_blank: [
+                { id: 'b1_math', name: 'Mathematics – I',               credits: 4, isLab: false, active: true, midsem: 18, ia: 20, endsem: 65, tag: 'BSC • 4 Cr' },
+                { id: 'b1_phys', name: 'Applied Physics',               credits: 3, isLab: false, active: true, midsem: 18, ia: 20, endsem: 65, tag: 'BSC • 3 Cr' },
+                { id: 'b1_eng',  name: 'English Communication',         credits: 2, isLab: false, active: true, midsem: 18, ia: 20, endsem: 65, tag: 'HSC • 2 Cr' },
+                { id: 'b1_evs',  name: 'Environment Science',           credits: 2, isLab: false, active: true, midsem: 18, ia: 20, endsem: 65, tag: 'BSC • 2 Cr' },
+                { id: 'b1_iks',  name: 'Indian Knowledge System',       credits: 2, isLab: false, active: true, midsem: 18, ia: 20, endsem: 65, tag: 'HSC • 2 Cr' },
+                { id: 'b1_cp',   name: 'Computer Programming – I',      credits: 1, isLab: false, active: true, midsem: 18, ia: 20, endsem: 65, tag: 'ESC • 1 Cr' },
+                { id: 'b1_uhv',  name: 'Universal Human Values',        credits: 1, isLab: false, active: true, midsem: 18, ia: 20, endsem: 65, tag: 'HSC • 1 Cr' },
+                { id: 'b1_eg',   name: 'Engineering Graphics',          credits: 2, isLab: true,  active: true, midsem: 20, ia: 21, endsem: 70, tag: 'BSC • 2 Cr' },
+                { id: 'b1_plab', name: 'Applied Physics Laboratory',    credits: 1, isLab: true,  active: true, midsem: 20, ia: 21, endsem: 70, tag: 'BSC • 1 Cr' },
+                { id: 'b1_work', name: 'Workshop Practices',            credits: 1, isLab: true,  active: true, midsem: 20, ia: 21, endsem: 70, tag: 'ESC • 1 Cr' },
+                { id: 'b1_cplb', name: 'Computer Programming – I Lab',  credits: 1, isLab: true,  active: true, midsem: 20, ia: 21, endsem: 70, tag: 'ESC • 1 Cr' }
+            ],
+            // Sem 2 from PDEU Course Outline Image (20 Credits)
+            sem2: [
+                { id: 's2_math2', name: 'Mathematics – II',                         credits: 4, isLab: false, active: true, midsem: 19, ia: 20, endsem: 68, tag: 'BSC • 4 Cr' },
+                { id: 's2_chem',  name: 'Engineering Chemistry',                    credits: 3, isLab: false, active: true, midsem: 18, ia: 20, endsem: 66, tag: 'BSC • 3 Cr' },
+                { id: 's2_eee',   name: 'Elements of Electrical & Electronics Engg',credits: 3, isLab: false, active: true, midsem: 18, ia: 20, endsem: 66, tag: 'ESC • 3 Cr' },
+                { id: 's2_pcomm', name: 'Professional Communication',               credits: 2, isLab: false, active: true, midsem: 19, ia: 21, endsem: 68, tag: 'HSC • 2 Cr' },
+                { id: 's2_bio',   name: 'Biological Systems for Engineers',         credits: 2, isLab: false, active: true, midsem: 19, ia: 21, endsem: 68, tag: 'ESC • 2 Cr' },
+                { id: 's2_ob',    name: 'Organizational Behavior',                  credits: 1, isLab: false, active: true, midsem: 19, ia: 21, endsem: 68, tag: 'HSC • 1 Cr' },
+                { id: 's2_cp2',   name: 'Computer Programming – II',                credits: 1, isLab: false, active: true, midsem: 20, ia: 21, endsem: 70, tag: 'ESC • 1 Cr' },
+                { id: 's2_cheml', name: 'Engineering Chemistry Laboratory',         credits: 1, isLab: true,  active: true, midsem: 21, ia: 21, endsem: 72, tag: 'Lab • 1 Cr' },
+                { id: 's2_eeel',  name: 'EEE Laboratory',                           credits: 1, isLab: true,  active: true, midsem: 21, ia: 21, endsem: 72, tag: 'Lab • 1 Cr' },
+                { id: 's2_cp2l',  name: 'Computer Programming – II Lab',            credits: 1, isLab: true,  active: true, midsem: 21, ia: 22, endsem: 74, tag: 'Lab • 1 Cr' },
+                { id: 's2_ncc',   name: 'Yoga, Health & Hygiene / NCC / NSS',       credits: 1, isLab: true,  active: true, midsem: 22, ia: 22, endsem: 76, tag: 'HSC • 1 Cr' }
+            ],
+            // Sem 3 from PDEU Course Outline Image (21 Credits)
+            sem3: [
+                { id: 's3_dm',    name: 'Discrete Mathematics',                     credits: 4, isLab: false, active: true, midsem: 19, ia: 20, endsem: 68, tag: 'BSC • 4 Cr' },
+                { id: 's3_dld',   name: 'Digital Logic and Design',                 credits: 4, isLab: false, active: true, midsem: 19, ia: 20, endsem: 68, tag: 'PC • 4 Cr' },
+                { id: 's3_dbms',  name: 'Database Management System (DBMS)',        credits: 3, isLab: false, active: true, midsem: 19, ia: 21, endsem: 68, tag: 'PC • 3 Cr' },
+                { id: 's3_ds',    name: 'Data Structures',                          credits: 3, isLab: false, active: true, midsem: 19, ia: 21, endsem: 68, tag: 'PC • 3 Cr' },
+                { id: 's3_oop',   name: 'Object Oriented Programming (OOP)',        credits: 3, isLab: false, active: true, midsem: 20, ia: 21, endsem: 70, tag: 'PC • 3 Cr' },
+                { id: 's3_dbmsl', name: 'DBMS Laboratory',                          credits: 1, isLab: true,  active: true, midsem: 21, ia: 22, endsem: 74, tag: 'Lab • 1 Cr' },
+                { id: 's3_dsl',   name: 'Data Structures Laboratory',               credits: 1, isLab: true,  active: true, midsem: 21, ia: 22, endsem: 74, tag: 'Lab • 1 Cr' },
+                { id: 's3_oopl',  name: 'Object Oriented Programming Lab',          credits: 1, isLab: true,  active: true, midsem: 21, ia: 22, endsem: 74, tag: 'Lab • 1 Cr' },
+                { id: 's3_cssi',  name: 'Civic and Social Service Internship',      credits: 1, isLab: true,  active: true, midsem: 22, ia: 22, endsem: 76, tag: 'Pro • 1 Cr' }
+            ],
+            // Sem 4 from PDEU Course Outline Image (22 Credits)
+            sem4: [
+                { id: 's4_coa',   name: 'Computer Organization and Architecture',   credits: 4, isLab: false, active: true, midsem: 19, ia: 20, endsem: 68, tag: 'PC • 4 Cr' },
+                { id: 's4_toc',   name: 'Theory of Computation',                    credits: 4, isLab: false, active: true, midsem: 19, ia: 20, endsem: 68, tag: 'PC • 4 Cr' },
+                { id: 's4_oe1',   name: 'Open Elective 1 / Intro to Data Science',  credits: 3, isLab: false, active: true, midsem: 20, ia: 21, endsem: 70, tag: 'OE • 3 Cr' },
+                { id: 's4_prob',  name: 'Probability and Statistics Theory',        credits: 3, isLab: false, active: true, midsem: 19, ia: 20, endsem: 68, tag: 'PC • 3 Cr' },
+                { id: 's4_se',    name: 'Software Engineering',                     credits: 3, isLab: false, active: true, midsem: 20, ia: 21, endsem: 70, tag: 'PC • 3 Cr' },
+                { id: 's4_daa',   name: 'Design and Analysis of Algorithm',         credits: 3, isLab: false, active: true, midsem: 19, ia: 21, endsem: 68, tag: 'PC • 3 Cr' },
+                { id: 's4_dt',    name: 'Design Thinking',                          credits: 1, isLab: true,  active: true, midsem: 21, ia: 22, endsem: 74, tag: 'PC • 1 Cr' },
+                { id: 's4_sel',   name: 'Software Engineering Laboratory',          credits: 1, isLab: true,  active: true, midsem: 21, ia: 22, endsem: 74, tag: 'Lab • 1 Cr' }
+            ]
+        };
+
+        let courses = JSON.parse(JSON.stringify(presets.sem1_my));
+
+        // ============================================================================
+        // 3. CORE PDEU MATH HELPERS (25 + 25 + 50 = 100)
+        // ============================================================================
+        function clamp(val, min, max) {
+            const num = parseFloat(val);
+            if (isNaN(num)) return min;
+            return Math.max(min, Math.min(max, num));
+        }
+
+        function calcSubjectTotal(midsem, ia, endsem100) {
+            const m = clamp(midsem, 0, 25);
+            const i = clamp(ia, 0, 25);
+            const e = clamp(endsem100, 0, 100);
+            return m + i + (e * 0.5);
+        }
+
+        function getGradeFromTotal(totalMarks) {
+            // Avoid floating point precision issues like 79.999999
+            const rounded = Math.round(totalMarks * 100) / 100;
+            for (const c of gradeCutoffs) {
+                if (rounded >= c.min) return c;
+            }
+            return gradeCutoffs[gradeCutoffs.length - 1];
+        }
+
+        function getCutoffForPoints(points) {
+            const found = gradeCutoffs.find(c => c.points === points);
+            return found ? found.min : 0;
+        }
+
+        function getLetterForPoints(points) {
+            const found = gradeCutoffs.find(c => c.points === points);
+            return found ? found.grade : 'F';
+        }
+
+        // Exact Endsem marks (out of 100) needed to hit a target cutoff (out of 100)
+        // given current Midsem (0-25) and IA (0-25)
+        function calcRequiredEndsem100(midsem, ia, targetTotalCutoff) {
+            const internal = clamp(midsem, 0, 25) + clamp(ia, 0, 25);
+            const neededOut50 = targetTotalCutoff - internal;
+            if (neededOut50 <= 0) return 0;
+            return Math.ceil(neededOut50 * 2);
+        }
+
+        // ============================================================================
+        // 4. SMART TARGET GPA SOLVER (SOLVES PER SUBJECT GIVEN INDIVIDUAL MIDSEM + IA)
+        // ============================================================================
+        function solveTargetGpaPlan() {
+            const activeCourses = courses.filter(c => c.active);
+            const totalCredits = activeCourses.reduce((sum, c) => sum + Number(c.credits), 0);
+
+            if (totalCredits === 0) {
+                document.getElementById('plannedSgpaScore').textContent = '0.00';
+                document.getElementById('maxPossibleSgpaScore').textContent = '0.00';
+                recommendedGradesMap = {};
+                return;
+            }
+
+            const targetCreditPoints = Math.ceil((targetGpa * totalCredits) - 1e-6);
+
+            // Build solver state for each active course using its exact Midsem + IA
+            let items = activeCourses.map(c => {
+                const internal = clamp(c.midsem, 0, 25) + clamp(c.ia, 0, 25);
+                const maxTotalPossible = internal + 50; // if 100/100 in Endsem
+                const maxGradeObj = getGradeFromTotal(maxTotalPossible);
+
+                // Baseline: minimum passing grade (4 GP = 40 marks) or whatever grade internal+20 (40/100 Endsem) already gives
+                const baselineTotal = Math.max(40, internal + 20);
+                let startPoints = getGradeFromTotal(baselineTotal).points;
+                if (startPoints > maxGradeObj.points) startPoints = maxGradeObj.points;
+
+                return {
+                    id: c.id,
+                    credits: Number(c.credits),
+                    internal: internal,
+                    maxPoints: maxGradeObj.points,
+                    assignedPoints: startPoints
+                };
+            });
+
+            // Max possible SGPA if student scores 100/100 in every Endsem
+            const maxCreditPoints = items.reduce((sum, it) => sum + (it.credits * it.maxPoints), 0);
+            const maxPossibleSgpa = maxCreditPoints / totalCredits;
+            document.getElementById('maxPossibleSgpaScore').textContent = maxPossibleSgpa.toFixed(2);
+
+            let currentCreditPoints = items.reduce((sum, it) => sum + (it.credits * it.assignedPoints), 0);
+
+            // Upgrade subjects greedily where required Endsem marks are lowest & credit weight is favorable
+            while (currentCreditPoints < targetCreditPoints) {
+                let bestCandidate = null;
+                let lowestDifficulty = Infinity;
+
+                for (const it of items) {
+                    if (it.assignedPoints < it.maxPoints) {
+                        const nextPoints = it.assignedPoints + 1;
+                        const cutoff = getCutoffForPoints(nextPoints);
+                        const reqEndsem100 = Math.max(0, (cutoff - it.internal) * 2);
+
+                        if (reqEndsem100 <= 100) {
+                            // Prefer upgrading subjects that need lower Endsem marks and have higher credits
+                            const difficultyScore = reqEndsem100 - (it.credits * 3.0);
+                            if (difficultyScore < lowestDifficulty) {
+                                lowestDifficulty = difficultyScore;
+                                bestCandidate = it;
+                            }
+                        }
+                    }
+                }
+
+                if (!bestCandidate) break; // Reached ceiling
+                bestCandidate.assignedPoints += 1;
+                currentCreditPoints += bestCandidate.credits;
+            }
+
+            // Trim any excess upgrades if we overshot due to a high-credit jump
+            let trimmed = true;
+            while (trimmed) {
+                trimmed = false;
+                const sortedByHardest = [...items].sort((a, b) => {
+                    const reqA = (getCutoffForPoints(a.assignedPoints) - a.internal) * 2;
+                    const reqB = (getCutoffForPoints(b.assignedPoints) - b.internal) * 2;
+                    return reqB - reqA;
+                });
+
+                for (const it of sortedByHardest) {
+                    if (it.assignedPoints > 4 && (currentCreditPoints - it.credits) >= targetCreditPoints) {
+                        it.assignedPoints -= 1;
+                        currentCreditPoints -= it.credits;
+                        trimmed = true;
+                        break;
+                    }
+                }
+            }
+
+            const plannedSgpa = currentCreditPoints / totalCredits;
+            document.getElementById('plannedSgpaScore').textContent = plannedSgpa.toFixed(2);
+
+            // Save per-subject recommendation map
+            recommendedGradesMap = {};
+            let highestEndsemRequired = 0;
+
+            items.forEach(it => {
+                const cutoff = getCutoffForPoints(it.assignedPoints);
+                const reqEndsem = Math.min(100, Math.max(0, Math.ceil((cutoff - it.internal) * 2)));
+                if (reqEndsem > highestEndsemRequired) highestEndsemRequired = reqEndsem;
+
+                recommendedGradesMap[it.id] = {
+                    targetPoints: it.assignedPoints,
+                    targetGrade: getLetterForPoints(it.assignedPoints),
+                    cutoffMarks: cutoff,
+                    neededEndsem100: reqEndsem,
+                    maxPointsPossible: it.maxPoints
+                };
+            });
+
+            // Update Banner Status
+            const banner = document.getElementById('targetStatusBanner');
+            const msg = document.getElementById('targetStatusMessage');
+
+            if (currentCreditPoints < targetCreditPoints) {
+                banner.className = 'rounded-xl px-4 py-3 border flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-rose-950/50 border-rose-500/40 text-rose-200 text-xs sm:text-sm';
+                msg.innerHTML = `⚠️ <strong>Target ${targetGpa.toFixed(2)} GPA</strong> is higher than the maximum mathematically possible (<strong>${maxPossibleSgpa.toFixed(2)}</strong>) with your current Midsem + IA marks. Increase your IA marks or lower the target slightly.`;
+            } else if (highestEndsemRequired <= 75) {
+                banner.className = 'rounded-xl px-4 py-3 border flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-emerald-950/40 border-emerald-500/30 text-emerald-200 text-xs sm:text-sm';
+                msg.innerHTML = `✅ <strong>Target ${targetGpa.toFixed(2)} GPA is Realistic!</strong> Based on each subject's Midsem + IA, you need at most <strong>${highestEndsemRequired}/100</strong> in Endsem to achieve <strong>${plannedSgpa.toFixed(2)} SGPA</strong>. See each subject card below for exact marks.`;
+            } else {
+                banner.className = 'rounded-xl px-4 py-3 border flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-amber-950/40 border-amber-500/40 text-amber-200 text-xs sm:text-sm';
+                msg.innerHTML = `🔥 <strong>Target ${targetGpa.toFixed(2)} GPA is Achievable with High Focus!</strong> You will need up to <strong>${highestEndsemRequired}/100</strong> in key Endsem exams to achieve <strong>${plannedSgpa.toFixed(2)} SGPA</strong>. Check each subject's target badge below.`;
+            }
+        }
+
+        // ============================================================================
+        // 5. RENDER ALL SUBJECT CARDS WITH LIVE INPUTS + PER-SUBJECT TARGET BADGES
+        // ============================================================================
+        function renderSubjects() {
+            solveTargetGpaPlan();
+
+            const container = document.getElementById('subjectsContainer');
+            container.innerHTML = '';
+
+            courses.forEach((course, idx) => {
+                const mid = clamp(course.midsem, 0, 25);
+                const ia = clamp(course.ia, 0, 25);
+                const end100 = clamp(course.endsem, 0, 100);
+                const internal50 = mid + ia;
+                const endScaled50 = end100 * 0.5;
+                const total100 = internal50 + endScaled50;
+                const currentGrade = getGradeFromTotal(total100);
+
+                // Per-subject Endsem requirements for O (80), A+ (70), A (60), Pass (40)
+                const reqForO  = calcRequiredEndsem100(mid, ia, getCutoffForPoints(10));
+                const reqForA1 = calcRequiredEndsem100(mid, ia, getCutoffForPoints(9));
+                const reqForA  = calcRequiredEndsem100(mid, ia, getCutoffForPoints(8));
+                const reqForP  = calcRequiredEndsem100(mid, ia, getCutoffForPoints(4));
+
+                const rec = recommendedGradesMap[course.id];
+
+                const card = document.createElement('div');
+                card.className = `rounded-2xl border p-4 sm:p-5 space-y-3.5 transition ${
+                    course.active
+                        ? 'bg-slate-900 border-slate-800 shadow-md'
+                        : 'bg-slate-900/35 border-slate-800/40 opacity-55'
+                }`;
+
+                card.innerHTML = `
+                    <!-- Card Top Row: Active Checkbox, Editable Name & Credits, Live Grade Box -->
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="flex items-start gap-2.5 flex-1 min-w-0">
+                            <input type="checkbox" ${course.active ? 'checked' : ''}
+                                onchange="toggleSubjectActive(${idx}, this.checked)"
+                                class="mt-1.5 w-4 h-4 accent-blue-500 rounded cursor-pointer shrink-0">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <input type="text" value="${course.name}"
+                                        onchange="updateSubjectMeta(${idx}, 'name', this.value)"
+                                        class="bg-transparent hover:bg-slate-800/70 focus:bg-slate-950 border border-transparent focus:border-slate-700 rounded px-1.5 py-0.5 font-bold text-sm sm:text-base text-white w-full sm:w-auto flex-1 truncate">
+                                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 shrink-0">
+                                        ${course.tag || (course.isLab ? 'Lab' : 'Theory')}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-3 mt-1 text-xs text-slate-400">
+                                    <label class="inline-flex items-center gap-1">
+                                        <span>Credits:</span>
+                                        <input type="number" min="1" max="10" step="1" value="${course.credits}"
+                                            onchange="updateSubjectMeta(${idx}, 'credits', this.value)"
+                                            class="w-10 bg-slate-950 border border-slate-800 rounded px-1 py-0.5 text-center font-bold text-slate-200 text-xs">
+                                    </label>
+                                    <span>•</span>
+                                    <span>Internal: <strong id="internal-${course.id}" class="text-slate-200">${internal50.toFixed(1)}/50</strong></span>
+                                    <button onclick="removeSubject(${idx})" class="text-rose-400/70 hover:text-rose-400 text-[11px] ml-auto">Remove</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live Total & Grade Badge -->
+                        <div class="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 shrink-0">
+                            <div class="text-right">
+                                <div id="total-${course.id}" class="text-sm sm:text-base font-extrabold text-white">
+                                    ${total100.toFixed(1)}<span class="text-[10px] text-slate-500 font-normal">/100</span>
+                                </div>
+                                <div class="text-[10px] text-slate-400">Total Marks</div>
+                            </div>
+                            <div id="gradebox-${course.id}" class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/40 flex flex-col items-center justify-center">
+                                <span class="text-xs font-extrabold text-blue-300 leading-none">${currentGrade.grade}</span>
+                                <span class="text-[9px] text-blue-400 mt-0.5">${currentGrade.points} GP</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3 Individual Mark Inputs: Midsem (25), IA (25), Endsem (100) -->
+                    <div class="grid grid-cols-3 gap-2.5">
+                        <!-- Midsem (Out of 25) -->
+                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 space-y-1.5">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-400 font-medium">Midsem <span class="text-[10px] text-slate-500">(/25)</span></span>
+                                <input type="number" min="0" max="25" step="0.5" id="mid-num-${course.id}" value="${mid}"
+                                    oninput="updateSubjectMark(${idx}, 'midsem', this.value)"
+                                    class="w-12 bg-slate-900 border border-slate-700 rounded px-1 py-0.5 text-right text-white font-bold text-xs">
+                            </div>
+                            <input type="range" min="0" max="25" step="0.5" id="mid-rng-${course.id}" value="${mid}"
+                                oninput="updateSubjectMark(${idx}, 'midsem', this.value)" class="w-full bg-slate-800">
+                        </div>
+
+                        <!-- IA (Out of 25) -->
+                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 space-y-1.5">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-400 font-medium">IA <span class="text-[10px] text-slate-500">(/25)</span></span>
+                                <input type="number" min="0" max="25" step="0.5" id="ia-num-${course.id}" value="${ia}"
+                                    oninput="updateSubjectMark(${idx}, 'ia', this.value)"
+                                    class="w-12 bg-slate-900 border border-slate-700 rounded px-1 py-0.5 text-right text-white font-bold text-xs">
+                            </div>
+                            <input type="range" min="0" max="25" step="0.5" id="ia-rng-${course.id}" value="${ia}"
+                                oninput="updateSubjectMark(${idx}, 'ia', this.value)" class="w-full bg-slate-800">
+                        </div>
+
+                        <!-- Endsem (Out of 100 -> Scaled to 50) -->
+                        <div class="bg-slate-950 border border-amber-500/30 rounded-xl p-2.5 space-y-1.5">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-amber-300 font-semibold">Endsem <span class="text-[10px] text-amber-400/70">(/100)</span></span>
+                                <input type="number" min="0" max="100" step="1" id="end-num-${course.id}" value="${end100}"
+                                    oninput="updateSubjectMark(${idx}, 'endsem', this.value)"
+                                    class="w-12 bg-slate-900 border border-amber-500/40 rounded px-1 py-0.5 text-right text-amber-300 font-bold text-xs">
+                            </div>
+                            <input type="range" min="0" max="100" step="1" id="end-rng-${course.id}" value="${end100}"
+                                oninput="updateSubjectMark(${idx}, 'endsem', this.value)" class="w-full bg-slate-800">
+                        </div>
+                    </div>
+
+                    <!-- Live Formula Breakdown Line -->
+                    <div id="formula-${course.id}" class="text-[11px] font-mono text-slate-400 flex flex-wrap items-center justify-between gap-2 px-1">
+                        <span>${mid} (Mid) + ${ia} (IA) + <strong class="text-amber-300">${endScaled50.toFixed(1)}/50</strong> (${end100} Endsem ÷ 2) = <strong class="text-white">${total100.toFixed(1)}/100</strong></span>
+                    </div>
+
+                    <!-- Target GPA Requirement Box + Grade Cutoff Pills for This Subject -->
+                    <div id="targetbox-${course.id}" class="bg-slate-950/90 border border-slate-800/90 rounded-xl p-3 space-y-2">
+                        ${renderSubjectTargetInnerHtml(course, rec, reqForO, reqForA1, reqForA, reqForP)}
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+
+            updateLiveSummaryScores();
+            saveToLocalStorage();
+        }
+
+        function renderSubjectTargetInnerHtml(course, rec, reqForO, reqForA1, reqForA, reqForP) {
+            const formatReq = (req) => req <= 100 ? `<strong>${req}</strong>/100` : `<span class="text-rose-400">N/A (&gt;100)</span>`;
+
+            let targetLine = '';
+            if (course.active && rec) {
+                const isMet = Number(course.endsem) >= rec.neededEndsem100;
+                const pillStyle = isMet
+                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                    : 'bg-amber-500/20 text-amber-300 border-amber-500/40';
+
+                targetLine = `
+                    <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-800/80 text-xs">
+                        <span class="text-slate-300">
+                            🎯 For <strong>${targetGpa.toFixed(2)} GPA Plan</strong> (Target <strong>${rec.targetGrade} / ${rec.targetPoints} GP</strong>):
+                        </span>
+                        <button onclick="setSingleSubjectEndsem('${course.id}', ${rec.neededEndsem100})"
+                            class="px-2.5 py-0.5 rounded-lg border font-extrabold text-xs transition hover:scale-105 ${pillStyle}"
+                            title="Click to set Endsem to ${rec.neededEndsem100}/100">
+                            Need ${rec.neededEndsem100} / 100 in Endsem ${isMet ? '✓' : '⚡'}
+                        </button>
+                    </div>
+                `;
+            }
+
+            return `
+                ${targetLine}
+                <div class="flex flex-wrap items-center justify-between gap-1.5 text-[11px] text-slate-400">
+                    <span class="font-semibold text-slate-500">Endsem (/100) needed for:</span>
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <button onclick="setSingleSubjectEndsem('${course.id}', ${Math.min(100, reqForO)})" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300">
+                            O (10): ${formatReq(reqForO)}
+                        </button>
+                        <button onclick="setSingleSubjectEndsem('${course.id}', ${Math.min(100, reqForA1)})" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300">
+                            A+ (9): ${formatReq(reqForA1)}
+                        </button>
+                        <button onclick="setSingleSubjectEndsem('${course.id}', ${Math.min(100, reqForA)})" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300">
+                            A (8): ${formatReq(reqForA)}
+                        </button>
+                        <button onclick="setSingleSubjectEndsem('${course.id}', ${Math.min(100, reqForP)})" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300">
+                            Pass: ${formatReq(reqForP)}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Fast DOM update when sliding or typing Midsem / IA / Endsem without losing input focus
+        function updateSubjectMark(idx, field, rawValue) {
+            const maxAllowed = field === 'endsem' ? 100 : 25;
+            const val = clamp(rawValue, 0, maxAllowed);
+            courses[idx][field] = val;
+
+            const c = courses[idx];
+            const prefix = field === 'midsem' ? 'mid' : field === 'ia' ? 'ia' : 'end';
+            const numInput = document.getElementById(`${prefix}-num-${c.id}`);
+            const rngInput = document.getElementById(`${prefix}-rng-${c.id}`);
+            if (numInput && document.activeElement !== numInput) numInput.value = val;
+            if (rngInput && document.activeElement !== rngInput) rngInput.value = val;
+
+            // Re-run target solver because Midsem or IA change affects all subject target recommendations
+            solveTargetGpaPlan();
+
+            // Update every card's live display & target recommendation box smoothly
+            courses.forEach(course => {
+                const mid = clamp(course.midsem, 0, 25);
+                const ia = clamp(course.ia, 0, 25);
+                const end100 = clamp(course.endsem, 0, 100);
+                const internal50 = mid + ia;
+                const endScaled50 = end100 * 0.5;
+                const total100 = internal50 + endScaled50;
+                const g = getGradeFromTotal(total100);
+
+                const intEl = document.getElementById(`internal-${course.id}`);
+                const totEl = document.getElementById(`total-${course.id}`);
+                const grdEl = document.getElementById(`gradebox-${course.id}`);
+                const frmEl = document.getElementById(`formula-${course.id}`);
+                const tgtEl = document.getElementById(`targetbox-${course.id}`);
+
+                if (intEl) intEl.textContent = `${internal50.toFixed(1)}/50`;
+                if (totEl) totEl.innerHTML = `${total100.toFixed(1)}<span class="text-[10px] text-slate-500 font-normal">/100</span>`;
+                if (grdEl) {
+                    grdEl.innerHTML = `
+                        <span class="text-xs font-extrabold text-blue-300 leading-none">${g.grade}</span>
+                        <span class="text-[9px] text-blue-400 mt-0.5">${g.points} GP</span>
+                    `;
+                }
+                if (frmEl) {
+                    frmEl.innerHTML = `<span>${mid} (Mid) + ${ia} (IA) + <strong class="text-amber-300">${endScaled50.toFixed(1)}/50</strong> (${end100} Endsem ÷ 2) = <strong class="text-white">${total100.toFixed(1)}/100</strong></span>`;
+                }
+                if (tgtEl) {
+                    const reqForO  = calcRequiredEndsem100(mid, ia, getCutoffForPoints(10));
+                    const reqForA1 = calcRequiredEndsem100(mid, ia, getCutoffForPoints(9));
+                    const reqForA  = calcRequiredEndsem100(mid, ia, getCutoffForPoints(8));
+                    const reqForP  = calcRequiredEndsem100(mid, ia, getCutoffForPoints(4));
+                    tgtEl.innerHTML = renderSubjectTargetInnerHtml(course, recommendedGradesMap[course.id], reqForO, reqForA1, reqForA, reqForP);
+                }
+            });
+
+            updateLiveSummaryScores();
+            saveToLocalStorage();
+        }
+
+        function setSingleSubjectEndsem(courseId, endsemVal) {
+            const idx = courses.findIndex(c => c.id === courseId);
+            if (idx === -1) return;
+            courses[idx].endsem = clamp(endsemVal, 0, 100);
+            renderSubjects();
+        }
+
+        function applyRecommendedEndsemToAll() {
+            solveTargetGpaPlan();
+            courses.forEach(c => {
+                if (!c.active) return;
+                const rec = recommendedGradesMap[c.id];
+                if (rec) {
+                    c.endsem = clamp(rec.neededEndsem100, 0, 100);
+                }
+            });
+            renderSubjects();
+            showToast(`Applied Endsem target marks for ${targetGpa.toFixed(2)} GPA!`);
+        }
+
+        function setTargetGpa(val) {
+            const num = clamp(val, 4.0, 10.0);
+            targetGpa = num;
+            document.getElementById('heroTargetText').textContent = num.toFixed(2);
+
+            const inp = document.getElementById('targetGpaInput');
+            const sld = document.getElementById('targetGpaSlider');
+            if (document.activeElement !== inp) inp.value = num.toFixed(2);
+            if (document.activeElement !== sld) sld.value = num;
+
+            renderSubjects();
+        }
+
+        function setAllIaMarks(val) {
+            const iaVal = clamp(val, 0, 25);
+            courses.forEach(c => { c.ia = iaVal; });
+            renderSubjects();
+        }
+
+        function updateSubjectMeta(idx, field, val) {
+            if (field === 'credits') {
+                courses[idx].credits = clamp(val, 1, 10);
+            } else {
+                courses[idx].name = val.trim() || 'Subject';
+            }
+            renderSubjects();
+        }
+
+        function toggleSubjectActive(idx, checked) {
+            courses[idx].active = checked;
+            renderSubjects();
+        }
+
+        function toggleLabsFilter(checked) {
+            includeLabs = checked;
+            courses.forEach(c => {
+                if (c.isLab) c.active = checked;
+            });
+            renderSubjects();
+        }
+
+        function addNewSubject() {
+            const newId = 'custom_' + Date.now();
+            courses.push({
+                id: newId,
+                name: 'New PDEU Subject',
+                credits: 3,
+                isLab: false,
+                active: true,
+                midsem: 18,
+                ia: 20,
+                endsem: 66,
+                tag: 'Custom'
+            });
+            renderSubjects();
+            showToast('Added new subject!');
+        }
+
+        function removeSubject(idx) {
+            if (courses.length <= 1) return;
+            courses.splice(idx, 1);
+            renderSubjects();
+        }
+
+        function loadPreset(presetKey) {
+            if (!presets[presetKey]) return;
+            currentPresetKey = presetKey;
+            courses = JSON.parse(JSON.stringify(presets[presetKey]));
+            document.getElementById('includeLabsToggle').checked = true;
+
+            // Highlight active preset button
+            ['sem1_my', 'sem1_blank', 'sem2', 'sem3', 'sem4'].forEach(k => {
+                const btn = document.getElementById(`semBtn-${k}`);
+                if (!btn) return;
+                if (k === presetKey) {
+                    btn.className = 'px-3 py-1.5 rounded-lg font-bold bg-blue-600 text-white transition';
+                } else {
+                    btn.className = 'px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition';
+                }
+            });
+
+            renderSubjects();
+            showToast('Loaded semester subjects!');
+        }
+
+        // ============================================================================
+        // 6. LIVE SGPA & MULTI-SEMESTER CGPA CALCULATION
+        // ============================================================================
+        let currentLiveSgpa = 0;
+        let currentLiveCredits = 0;
+
+        function updateLiveSummaryScores() {
+            let totalCr = 0;
+            let totalCrPoints = 0;
+
+            courses.forEach(c => {
+                if (!c.active) return;
+                const cr = Number(c.credits) || 0;
+                const tot = calcSubjectTotal(c.midsem, c.ia, c.endsem);
+                const g = getGradeFromTotal(tot);
+                totalCr += cr;
+                totalCrPoints += (cr * g.points);
+            });
+
+            currentLiveCredits = totalCr;
+            currentLiveSgpa = totalCr > 0 ? (totalCrPoints / totalCr) : 0;
+
+            document.getElementById('liveSgpaScore').textContent = currentLiveSgpa.toFixed(2);
+            document.getElementById('liveCreditsLabel').textContent = `${totalCr} Credits Active`;
+
+            calculateOverallCgpa();
+        }
+
+        function calculateOverallCgpa() {
+            const prevCgpa = clamp(document.getElementById('prevCgpaInput').value, 0, 10);
+            const prevCredits = clamp(document.getElementById('prevCreditsInput').value, 0, 300);
+
+            document.getElementById('currentSemSummaryText').textContent =
+                `${currentLiveSgpa.toFixed(2)} SGPA × ${currentLiveCredits} Credits`;
+
+            const combinedCredits = prevCredits + currentLiveCredits;
+            const combinedCgpa = combinedCredits > 0
+                ? ((prevCgpa * prevCredits) + (currentLiveSgpa * currentLiveCredits)) / combinedCredits
+                : 0;
+
+            document.getElementById('combinedCgpaDisplay').textContent = combinedCgpa.toFixed(2);
+        }
+
+        // ============================================================================
+        // 7. EXPORT / COPY MARKS SUMMARY & LOCAL STORAGE
+        // ============================================================================
+        function copySummaryToClipboard() {
+            const active = courses.filter(c => c.active);
+            let lines = [
+                `⚡ VECTR // PDEU — Lock Your CGPA. Decode Your Endsem.`,
+                `🎯 Target GPA: ${targetGpa.toFixed(2)} | Live SGPA: ${currentLiveSgpa.toFixed(2)} (${currentLiveCredits} Cr)`,
+                `📐 PDEU 25·25·50 System: Midsem (25) + IA (25) + Endsem/2 (50) = 100`,
+                `------------------------------------------------------------`
+            ];
+
+            active.forEach(c => {
+                const tot = calcSubjectTotal(c.midsem, c.ia, c.endsem);
+                const g = getGradeFromTotal(tot);
+                lines.push(`${c.name} (${c.credits} Cr): Mid=${c.midsem}/25, IA=${c.ia}/25, Endsem=${c.endsem}/100 -> Total=${tot.toFixed(1)}/100 [${g.grade} | ${g.points} GP]`);
+            });
+
+            const textArea = document.createElement('textarea');
+            textArea.value = lines.join('\n');
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            showToast('⚡ VECTR // PDEU marks plan copied to clipboard!');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastText').textContent = message;
+            toast.classList.remove('hidden');
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 2600);
+        }
+
+        function saveToLocalStorage() {
+            try {
+                const payload = {
+                    targetGpa,
+                    currentPresetKey,
+                    courses,
+                    gradeCutoffs
+                };
+                localStorage.setItem('pdeu_cgpa_predictor_v2', JSON.stringify(payload));
+            } catch (e) {}
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const raw = localStorage.getItem('pdeu_cgpa_predictor_v2');
+                if (!raw) return false;
+                const data = JSON.parse(raw);
+                if (data && Array.isArray(data.courses) && data.courses.length > 0) {
+                    courses = data.courses;
+                    targetGpa = clamp(data.targetGpa || 8.5, 4.0, 10.0);
+                    currentPresetKey = data.currentPresetKey || 'sem1_my';
+                    if (Array.isArray(data.gradeCutoffs)) gradeCutoffs = data.gradeCutoffs;
+                    return true;
+                }
+            } catch (e) {}
+            return false;
+        }
+
+        // Cutoff Modal Controls
+        function renderCutoffInputs() {
+            const list = document.getElementById('cutoffInputsList');
+            list.innerHTML = gradeCutoffs.map((c, idx) => `
+                <div class="flex items-center justify-between bg-slate-950 px-3 py-2 rounded-xl border border-slate-800">
+                    <div>
+                        <span class="font-bold text-white text-sm">${c.grade} Grade</span>
+                        <span class="text-slate-400 ml-1">(${c.points} GP)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-slate-400">Min Marks (/100):</span>
+                        <input type="number" min="0" max="100" value="${c.min}" ${c.grade === 'F' ? 'disabled' : ''}
+                            oninput="updateCutoff(${idx}, this.value)"
+                            class="w-16 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-right text-white font-bold">
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateCutoff(idx, val) {
+            gradeCutoffs[idx].min = clamp(val, 0, 100);
+            renderSubjects();
+        }
+
+        function resetDefaultCutoffs() {
+            gradeCutoffs = JSON.parse(JSON.stringify(defaultCutoffs));
+            renderCutoffInputs();
+            renderSubjects();
+        }
+
+        function toggleGradingModal() {
+            const modal = document.getElementById('gradingModal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) renderCutoffInputs();
+        }
+
+        window.onload = function() {
+            loadFromLocalStorage();
+            setTargetGpa(targetGpa);
+        };
+    </script>
+</body>
+</html>
